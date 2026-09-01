@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetScope Traffic Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+<div id="networkDashboard" class="network-dashboard">
+    <aside id="dashboardSidebar" class="dashboard-sidebar">
+        <div class="application-brand"><span class="brand-mark">NS</span><div><strong>NetScope</strong><small>Traffic Monitor</small></div></div>
+        <nav class="dashboard-navigation" aria-label="Dashboard sections">
+            <button class="navigation-item navigation-item-active" data-target="overviewSection">Overview</button>
+            <button class="navigation-item" data-target="packetsSection">Packet Inspector</button>
+            <button class="navigation-item" data-target="hostsSection">Host Activity</button>
+        </nav>
+        <div class="capture-status-panel">
+            <span id="captureStatusIndicator" class="status-indicator"></span>
+            <div><strong id="captureStatusText">Capture stopped</strong><small id="captureModeText">Select a mode</small></div>
+        </div>
+    </aside>
+
+    <main id="dashboardWorkspace" class="dashboard-workspace">
+        <header class="workspace-header">
+            <div><h1>Network Monitoring Dashboard</h1><p>Live traffic, protocols, hosts, and alerts</p></div>
+            <div class="header-actions">
+                <select id="captureModeSelect" class="control-select"><option value="sample">Sample traffic</option><option value="live">Live interface</option></select>
+                <select id="networkInterfaceSelect" class="control-select" aria-label="Network interface"><option value="">Automatic interface</option></select>
+                <button id="startCaptureButton" class="primary-button">Start capture</button>
+                <button id="stopCaptureButton" class="secondary-button">Stop</button>
+            </div>
+        </header>
+
+        <section id="filterToolbar" class="filter-toolbar">
+            <label class="filter-field"><span>IP address</span><input id="ipAddressFilter" type="text" placeholder="192.168.1.10"></label>
+            <label class="filter-field"><span>Protocol</span><select id="protocolFilter"><option>ALL</option><option>TCP</option><option>UDP</option><option>DNS</option><option>ICMP</option><option>OTHER</option></select></label>
+            <label class="filter-field"><span>Port</span><input id="portFilter" type="number" min="1" max="65535" placeholder="443"></label>
+            <label class="filter-field"><span>Time range</span><select id="timeRangeFilter"><option value="all">All captured</option><option value="1">Last minute</option><option value="5">Last 5 minutes</option><option value="15">Last 15 minutes</option><option value="60">Last hour</option></select></label>
+            <button id="applyFiltersButton" class="secondary-button">Apply filters</button>
+            <div class="export-actions"><a id="csvExportLink" href="/export/traffic-summary.csv">Export CSV</a><a id="pdfExportLink" href="/export/traffic-report.pdf">Export PDF</a></div>
+        </section>
+
+        <section id="alertBanner" class="alert-banner hidden" role="alert"></section>
+
+        <section id="overviewSection" class="dashboard-section">
+            <div class="metric-card-grid">
+                <article class="metric-card"><span>Total packets</span><strong id="totalPacketsValue">0</strong><small>Matching current filters</small></article>
+                <article class="metric-card"><span>Total traffic</span><strong id="totalBytesValue">0 B</strong><small>Captured payload and headers</small></article>
+                <article class="metric-card"><span>Active hosts</span><strong id="activeHostsValue">0</strong><small>Senders and listeners</small></article>
+                <article class="metric-card"><span>Packet rate</span><strong id="packetRateValue">0 pps</strong><small>Latest one-second sample</small></article>
+            </div>
+            <div class="chart-grid">
+                <article class="dashboard-panel traffic-chart-panel"><div class="panel-heading"><div><h2>Traffic volume</h2><p>Bytes and packet rate over time</p></div></div><canvas id="trafficVolumeChart" class="dashboard-chart" width="900" height="260"></canvas></article>
+                <article class="dashboard-panel"><div class="panel-heading"><div><h2>Protocol usage</h2><p>Packet distribution</p></div></div><canvas id="protocolDistributionChart" class="dashboard-chart" width="420" height="260"></canvas><div id="protocolLegend" class="protocol-legend"></div></article>
+            </div>
+        </section>
+
+        <section id="packetsSection" class="dashboard-section">
+            <article class="dashboard-panel packet-inspector-panel">
+                <div class="panel-heading"><div><h2>Live packet inspector</h2><p>Select a row to see complete metadata</p></div><button id="clearPacketsButton" class="text-button">Clear captured data</button></div>
+                <div class="packet-content-layout">
+                    <div class="packet-table-wrapper"><table id="packetListTable" class="data-table"><thead><tr><th>Time</th><th>Source</th><th>Destination</th><th>Protocol</th><th>Src port</th><th>Dst port</th><th>Bytes</th></tr></thead><tbody id="packetListBody"></tbody></table></div>
+                    <aside id="packetDetailsPanel" class="packet-details-panel"><h3>Packet details</h3><p class="empty-state">Select a packet from the list.</p></aside>
+                </div>
+            </article>
+        </section>
+
+        <section id="hostsSection" class="dashboard-section">
+            <article class="dashboard-panel"><div class="panel-heading"><div><h2>Top talkers and listeners</h2><p>Traffic grouped by host address</p></div></div><div class="host-table-wrapper"><table class="data-table"><thead><tr><th>Host</th><th>Sent packets</th><th>Sent bytes</th><th>Received packets</th><th>Received bytes</th><th>Total traffic</th></tr></thead><tbody id="hostTrafficBody"></tbody></table></div></article>
+        </section>
+    </main>
+</div>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>
+
